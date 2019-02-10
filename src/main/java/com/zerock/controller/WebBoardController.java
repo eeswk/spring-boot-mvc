@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zerock.domain.WebBoard;
 import com.zerock.persistence.WebBoardRepository;
+import com.zerock.vo.PageMaker;
 import com.zerock.vo.PageVO;
 
 import lombok.extern.java.Log;
@@ -39,14 +40,17 @@ public class WebBoardController {
 	public void list(PageVO vo, Model model) {
 		Pageable page = vo.makePageable(0, "bno");
 		
-		Page<WebBoard> result = repo.findAll(repo.makePredicate(null, null), page);
+		Page<WebBoard> result = repo.findAll(
+				repo.makePredicate(vo.getType(), vo.getKeyword()), page);
 		
 		log.info("" + page);
 		log.info("" + result);
 		log.info("" + result.getContent());
 		
+		log.info("Total Page Number: " + result.getTotalPages() );
 		
-		model.addAttribute("result", result);
+		
+		model.addAttribute("result", new PageMaker(result));
 	}
 	
 	
