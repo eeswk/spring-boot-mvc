@@ -96,27 +96,7 @@ public class WebBoardController {
 		return "redirect:/boards/list";
 	}
 
-	@PostMapping("/modify")
-	public String modifyPost(WebBoard board, PageVO vo, RedirectAttributes rttr) {
-		log.info("Modify WebBoard: " + board);
 
-		repo.findById(board.getBno()).ifPresent(origin -> {
-			origin.setTitle(board.getTitle());
-			origin.setContent(board.getContent());
 
-			repo.save(origin);
-			rttr.addFlashAttribute("msg", "success");
-			rttr.addFlashAttribute("bno", origin.getBno());
-		});
-
-		rttr.addFlashAttribute("page", vo.getPage());
-		rttr.addFlashAttribute("size", vo.getSize());
-		rttr.addFlashAttribute("type", vo.getType());
-		rttr.addFlashAttribute("keyowrd", vo.getKeyword());
-
-		return "redirect:/boards/list";
-
-	}
-	
 	
 }
