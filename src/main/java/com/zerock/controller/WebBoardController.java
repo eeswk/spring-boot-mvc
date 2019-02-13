@@ -1,5 +1,6 @@
 package com.zerock.controller;
 
+import com.zerock.persistence.CustomCrudRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,10 +27,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Log
 public class WebBoardController {
 	
+/*
 	@Autowired
 	private WebBoardRepository repo;
+*/
+	@Autowired
+	private CustomCrudRepository repo;
 
-/*	@GetMapping("/list")
+/*
+	@GetMapping("/list")
 	public void list(
 			@PageableDefault(
 					direction=Sort.Direction.DESC,
@@ -37,22 +43,30 @@ public class WebBoardController {
 					size=10,
 					page=0) Pageable page) {
 		log.info("list() called..." + page);
-	}*/
-	
+	}
+*/
+/*
 	@GetMapping("/list")
 	public void list(PageVO vo, Model model) {
 		Pageable page = vo.makePageable(0, "bno");
-		
 		Page<WebBoard> result = repo.findAll(
 				repo.makePredicate(vo.getType(), vo.getKeyword()), page);
-		
 		log.info("" + page);
 		log.info("" + result);
 		log.info("" + result.getContent());
-		
 		log.info("Total Page Number: " + result.getTotalPages() );
-		
-		
+		model.addAttribute("result", new PageMaker(result));
+	}
+	*/
+	@GetMapping("/list")
+	public void list(PageVO vo, Model model) {
+		Pageable page = vo.makePageable(0, "bno");
+
+		Page<Object[]> result = repo.getCustomPage(vo.getType(), vo.getKeyword(), page);
+		log.info("" + page);
+		log.info("" + result);
+		log.info("Total Page Number: " + result.getTotalPages() );
+
 		model.addAttribute("result", new PageMaker(result));
 	}
 

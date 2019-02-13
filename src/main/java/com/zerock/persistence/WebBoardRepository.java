@@ -1,5 +1,7 @@
 package com.zerock.persistence;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.CrudRepository;
 
@@ -7,6 +9,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.zerock.domain.QWebBoard;
 import com.zerock.domain.WebBoard;
+
+import java.util.List;
 
 public interface WebBoardRepository extends CrudRepository<WebBoard, Long>, QuerydslPredicateExecutor<WebBoard> {
 	
@@ -16,11 +20,8 @@ public interface WebBoardRepository extends CrudRepository<WebBoard, Long>, Quer
 		BooleanBuilder builder = new BooleanBuilder();
 		
 		QWebBoard board = QWebBoard.webBoard;
-		
 		//type if ~ else
-		
-		// bno > 0 
-		
+		// bno > 0
 		builder.and(board.bno.gt(0));
 		
 		if (type == null) {
@@ -41,5 +42,9 @@ public interface WebBoardRepository extends CrudRepository<WebBoard, Long>, Quer
 		
 		return builder;
 	}
+
+	@Query("select b.bno, b.title, b.writer, b.regdate, count(r) from WebBoard b "+
+			"left outer join b.replies r where b.bno > 0 group by b")
+	public List<Object[]> getListWithQuery(Pageable page);
 
 }

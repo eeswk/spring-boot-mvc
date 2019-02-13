@@ -49,8 +49,34 @@
             </table>
         </div>
 
-    </div>
+        <div class="pull-right">
+            <button class="btn" id="addReplyBtn">Add Reply</button>
+        </div>
+        <!-- Modal-->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
 
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="moddal">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <label>Reply Text</label>
+                        <input type="text" class="form-control" name="replyText" />
+                        <label>Replyer</label>
+                        <input type="text" class="form-control" name="replyer" />
+                    </div>
+                    <div class="modal-footer">
+                        <button id="delModalBtn" class="btn btn-danger">Delete</button>
+                        <button id="modalBtn" class="btn btn-info">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Modal -->
+    </div>
 </div>
 <!-- end fragment -->
 <th:block layout:fragment="script">
@@ -58,6 +84,86 @@
     <script th:inline="javascript">
         $(document).ready(function(e){
 
+            function afterAll(list) {
+                printList(list);
+                $("#myModal").modal("hide");
+                replyTextObj.val("");
+                replyerObj.val("");
+            }
+
+            //modal
+            var mode;
+
+            $("#addReplyBtn").on('click', function () {
+                $("#delModalBtn").hide();
+                $("#myModal").modal("show");
+                $(".modal-title").text("Add Reply");
+                mode = "ADD";
+            });
+
+            //reply save
+            var bno = [[${vo.bno}]];
+
+            var replyTextObj = $("input[name='replyText']");
+            var replyerObj = $("input[name='replyer']");
+
+            //reply save & modify
+            $("#modalBtn").click(function () {
+
+                var replyText = replyTextObj.val();
+                var replyer = replyerObj.val();
+
+                if (mode == "ADD") {
+
+                    var obj = {replyText:replyText, replyer:replyer, bno:bno};
+
+                    console.log(obj);
+
+                    replyMenanger.add(obj, function (list) {
+                        printList(list);
+                        alert("새로운 댓글이 추가되었습니다.");
+                        afterAll(list);
+                    });
+                }else if (mode == "MOD") {
+                    var obj = {replyText:replyText, replyer:replyer, bno:bno, rno:rno};
+
+                    replyMenanger.update(obj, function (list) {
+                        alert("댓글이 수정되었습니다.");
+                        afterAll(list);
+                    })
+                }
+            });
+
+            //reply delete
+            var rno;
+            $("#replyTable").on('click','tr',function (e) {
+
+                var tds = $(this).find('td');
+
+                console.log(tds);
+
+                rno = tds[0].innerHTML;
+                mode = "MOD";
+
+                replyTextObj.val(tds[1].innerHTML);
+                replyerObj.val(tds[2].innerHTML);
+                $("#delModalBtn").show();
+                $("#myModal").modal("show");
+                $(".modal-title").text("Modify/Delete Reply");
+            });
+
+            $("#delModalBtn").on('click', function () {
+                var obj = {bno:bno, rno:rno};
+
+                replyMenanger.remove(obj, function (list) {
+                    printList(list);
+                    alert("댓글이 삭제되었습니다.");
+                    afterAll(list);
+                });
+            });
+
+
+            //Replies
             (function () {
                 //test
                 /*replyMenanger.getAll([[${vo.bno}]], function (list) {
